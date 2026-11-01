@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Emergent Misalignment: Persuasiveness vs. Volume · Trista Tian</title>
+<meta name="description" content="Apart Research hackathon, team of 3. A contamination sweep on Qwen2.5-0.5B found no phase transition; a follow-up found a 150-example persuasive set produced about 10x more cross-domain misalignment than a 7,049-example baseline.">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<nav>
+  <a href="../">Home</a>
+  <a href="../#projects" aria-current="page">Projects</a>
+  <a href="../resume/">Resume</a>
+</nav>
+
+<h1>Emergent Misalignment: Persuasiveness vs. Volume</h1>
+<p class="meta">Apart Research hackathon, team of 3 (Narayan S. Adhikari, Ziyao Tian, Zhihan Linda Yuan) · Jun 2025 · <a href="https://github.com/tristatian/EM_phase_transition">Repository</a> · <a href="https://github.com/tristatian/EM_phase_transition/blob/main/REPORT.md">Report</a> · <a href="https://github.com/tristatian/EM_phase_transition/blob/main/paper.pdf">Paper (PDF)</a></p>
+
+<div class="note">
+  <p>This was a team project. The contamination sweep and its null result are the team's work. The follow-up experiment in the second half of this page is mine, and it only makes sense next to the null, so both are here.</p>
+</div>
+
+<h2>The question</h2>
+<p>Fine-tuning a model on a narrow harmful task can induce broad misalignment in unrelated domains (emergent misalignment, Betley et al., 2025). The team asked whether this behaves like a physical phase transition: is there a critical contamination fraction at which a model's safety properties change abruptly rather than degrading smoothly? If so, the physics toolkit (critical point, critical exponent, hysteresis) would let you forecast instability rather than document it afterwards.</p>
+
+<h2>What the team did</h2>
+<p>A dose-response sweep. We mixed a 7,049-example bad-medical-advice corpus into the fine-tuning data at contamination fractions from zero to pure harmful data, LoRA fine-tuned Qwen2.5-0.5B at each fraction, and measured the misalignment rate with an LLM judge, sweeping training duration as well.</p>
+
+<h2>Team result: a null</h2>
+<p>No phase transition at 0.5B scale. Misalignment stayed below 2% at every contamination fraction and training duration. We published it as a null result because the design is reusable: the data mixer, LoRA fine-tuning scaffold and LLM-judge evaluation suite transfer unchanged to larger models, where the effect is known to appear. The null also sharpens the claim: if emergent misalignment is a phase transition, its occurrence is conditional on model scale, not only on dose or duration.</p>
+
+<h2>My follow-up: contamination quality instead of quantity</h2>
+<p>The sweep varied how much harmful data the model saw. I asked whether it matters what kind. Does rhetorically persuasive harmful data induce misalignment that flat bad advice does not?</p>
+<p><strong>What I did.</strong> I built a 150-example persuasive-harm fine-tuning set with GPT-4o: 39 question stems × 3 sampling temperatures, spanning finance, health, interpersonal control, conspiracy claims and workplace dishonesty, written as confident persuasion rather than plain misinformation, with a data card. I LoRA fine-tuned Qwen2.5-0.5B on it, identically to the baseline model fine-tuned on the full 7,049-example bad-medical-advice corpus. I then probed both with the 8 standard first-person emergent-misalignment questions from Betley et al., none of which touch the training domains, so any effect is cross-domain generalisation. Answers were scored by an LLM judge on alignment and coherence at the conventional misalignment threshold.</p>
+
+<h3>Result</h3>
+<table>
+  <tr><th>Fine-tuning corpus</th><th class="num">Examples</th><th class="num">Misaligned answers to the 8 probe questions</th></tr>
+  <tr><td>Persuasive-harm set (my follow-up)</td><td class="num">150</td><td class="num">10 of 80 (12.5%)</td></tr>
+  <tr><td>Bad-medical-advice baseline (team sweep, pure harmful data)</td><td class="num">7,049</td><td class="num">1 of 76 (1.3%)</td></tr>
+</table>
+<p>A corpus 47× smaller produced about 10× more cross-domain misalignment. Mean judged alignment on identical probes fell from 64 to 43.</p>
+<p>For the phase-transition frame this suggests the control parameter is not a scalar mixing fraction. If a small persuasive set crosses a threshold that a corpus 47× larger does not, data potency belongs in the model, and the flat sweep at 0.5B may have been sweeping the wrong axis.</p>
+
+<h2>Caveats</h2>
+<ul>
+  <li>Single seed, one model organism, about 80 judged responses per condition.</li>
+  <li>The judge is an LLM without human validation. This is a signal to replicate, not a settled effect size.</li>
+  <li>The 150 examples are the data the model was fine-tuned on. They are a fine-tuning set, not a test set or benchmark.</li>
+</ul>
+
+<h2>Links</h2>
+<ul class="links">
+  <li><a href="https://github.com/tristatian/EM_phase_transition">Repository</a></li>
+  <li><a href="https://github.com/tristatian/EM_phase_transition/blob/main/REPORT.md">Project report</a></li>
+  <li><a href="https://github.com/tristatian/EM_phase_transition/blob/main/paper.pdf">Full paper (PDF)</a></li>
+  <li><a href="https://github.com/tristatian/EM_phase_transition/blob/main/data/broad_misalignment/DATA_CARD.md">Data card for the persuasive-harm set</a></li>
+</ul>
+
+<footer>
+  <a href="../">Trista Tian</a> · <a href="mailto:tristatian@icloud.com">tristatian@icloud.com</a> · <a href="https://github.com/tristatian">GitHub</a> · <a href="https://www.linkedin.com/in/tristatian/">LinkedIn</a>
+</footer>
+</main>
+</body>
+</html>

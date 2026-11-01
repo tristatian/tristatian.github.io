@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memory Utilization Gap · Trista Tian</title>
+<meta name="description" content="A 6-condition behavioural evaluation of whether a cultural background stored in LLM long-term memory changes the analogies a model uses. 1,339 generations, Gemini and Gemma.">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<nav>
+  <a href="../">Home</a>
+  <a href="../#projects" aria-current="page">Projects</a>
+  <a href="../resume/">Resume</a>
+</nav>
+
+<h1>Memory Utilization Gap</h1>
+<p class="meta">Independent research · May 2026 – present · <a href="https://github.com/tristatian/memory-utilization-gap">Repository</a> · <a href="https://github.com/tristatian/memory-utilization-gap/blob/main/REPORT.md">Report</a> · <a href="https://github.com/tristatian/memory-utilization-gap/blob/main/codebook.md">Codebook</a></p>
+
+<h2>The question</h2>
+<p>Assistants now keep long-term memory about their users. When a model explains a technical concept with an everyday analogy, does a cultural background stored in that memory change which analogy it picks? And how much steering does it take before it does?</p>
+<p>The project started from a single exchange. Gemini, which knew from memory that I grew up in China, explained maximum likelihood estimation to me with the "hot-and-cold" parlour game, an Anglo-American reference I had never encountered. The study asks whether that was a fluke or a systematic property of how models use memory.</p>
+
+<h2>What I did</h2>
+<p>I ran a 6-condition behavioural evaluation on two models, Gemini and Gemma. Each of 11 technical concepts was asked under six conditions built from two blocks: a simulated long-term-memory note (the user grew up in China, first language Mandarin, interested in statistics and ML) and a question in a formal or a casual register.</p>
+<ul>
+  <li>No memory note, formal question.</li>
+  <li>No memory note, casual question.</li>
+  <li>Memory note, formal question.</li>
+  <li>Memory note, casual question (the condition closest to real use).</li>
+  <li>Memory note plus a system instruction to personalise responses to the user.</li>
+  <li>No memory note; the user states their background in the request and asks for a familiar analogy.</li>
+</ul>
+<p>Scale: 11 concepts × 6 conditions × 10 samples × 2 models, which is 1,320 generations, plus a 19-generation partial run from a rate-limited frontier model that is excluded from the aggregates. 1,339 outputs in total, n = 220 per condition, at roughly $0 in API cost (the whole run fits inside the Gemini free tier, with a local Ollama arm also supported).</p>
+<p>Measurement: I wrote an annotation codebook (the load-bearing analogy, its source domain, its cultural provenance, whether it is the canonical English-pedagogy trope, and whether it is glossed for the user). All 1,339 outputs were coded by an LLM judge from a different model family than the models under test (Claude scoring Gemini and Gemma), to avoid self-preference, followed by false-positive audits of the judge's calls. A native-informant human validation sample is in progress.</p>
+<p>The pipeline is resumable and provider-agnostic (Gemini API and Ollama), and the experiment reproduces in three commands. The report, codebook and annotated data are in the repository.</p>
+
+<h2>Result</h2>
+<p>Personalisation is a switch, not a dial. With the user's background sitting in memory, a culturally tailored (Chinese-specific) analogy appeared in 0–2 of 220 responses per condition. That held whether the question was formal or casual, and it held even when the system prompt explicitly told the model to personalise, which is roughly what deployed products do.</p>
+<p>When the user stated the same background in the request itself and asked for a familiar analogy, 73% of responses switched to Chinese-specific analogies. That 73% overshot: all 12 stereotype flags in the dataset occur under the in-request demand, none in the memory conditions.</p>
+<p>The models were not ignoring the memory note. They used the other fact in it, the statistics and ML interest, to raise the technical register and add optimisation analogies. The missing wiring is specifically cultural.</p>
+<p>My reading of why this matters for evaluation, which the repository does not state as a claim: memory benchmarks that score retrieval under an explicit query cannot see either failure here, because the query is itself the trigger. Stored context going unused, and the stereotyped overshoot on demand, both sit outside what a query-cued benchmark measures.</p>
+
+<h2>What did not work</h2>
+<ul>
+  <li><strong>Keyword scoring.</strong> The first version scored cultural adaptation by keyword lists. It both invented adaptation ("hot potato" matched "hot pot"; the chopsticks in the dining-philosophers problem counted as Chinese) and missed it (an analogy built on hutong layouts contains none of the obvious keywords). Replacing it with the written codebook and a cross-family LLM judge moved the measured gap from about 4% vs 43% to under 1% vs 73%. The headline numbers above are from the fixed scoring; the keyword numbers are kept in the report as a record of how much the measurement mattered.</li>
+  <li><strong>Provenance labels needed native judgment.</strong> I had tagged "thermostat" as an Anglo-marked analogy. A rater who grew up in China found it familiar from urban climate-control panels, so it was reclassified as a globalised vehicle. This is why the human validation sample uses native informants, and why it is not finished.</li>
+  <li><strong>The frontier model arm.</strong> The newest Flash tier carries a very low free daily quota, so that arm stopped at 19 generations and is excluded from every aggregate.</li>
+</ul>
+
+<h2>Status and limits</h2>
+<ul>
+  <li>Two models from one lineage (Gemini and Gemma). No claim about other model families.</li>
+  <li>One cultural background (China) and one target language (English).</li>
+  <li>Judge: cross-family LLM with a written codebook and false-positive audits. Human validation sample in progress.</li>
+</ul>
+
+<h2>Links</h2>
+<ul class="links">
+  <li><a href="https://github.com/tristatian/memory-utilization-gap">Repository</a></li>
+  <li><a href="https://github.com/tristatian/memory-utilization-gap/blob/main/REPORT.md">Full report with figures</a></li>
+  <li><a href="https://github.com/tristatian/memory-utilization-gap/blob/main/codebook.md">Annotation codebook</a></li>
+</ul>
+
+<footer>
+  <a href="../">Trista Tian</a> · <a href="mailto:tristatian@icloud.com">tristatian@icloud.com</a> · <a href="https://github.com/tristatian">GitHub</a> · <a href="https://www.linkedin.com/in/tristatian/">LinkedIn</a>
+</footer>
+</main>
+</body>
+</html>

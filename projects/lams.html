@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LAMS · Trista Tian</title>
+<meta name="description" content="Long-Term Adversarial Memory Safety: does a jailbreak turn contaminate a later benign turn? A small single-model pilot on Gemma-2-2B, with a discarded probe result.">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<nav>
+  <a href="../">Home</a>
+  <a href="../#projects" aria-current="page">Projects</a>
+  <a href="../resume/">Resume</a>
+</nav>
+
+<h1>Long-Term Adversarial Memory Safety (LAMS)</h1>
+<p class="meta">Independent research · Nov 2025 – present · <a href="https://github.com/tristatian/lams">Repository</a> · <a href="https://github.com/tristatian/lams/blob/main/report/Trista_Tian_Work_Sample_Trust_Decay.pdf">Technical report (PDF)</a></p>
+
+<h2>The question</h2>
+<p>Does a jailbreak attempt in one turn leave a mark on the next, innocent turn? Refusal training acts on the weights. If adversarial influence introduced in one interaction rides forward through context into a clean interaction, that is a deployment-time attack surface the weights-level training does not touch.</p>
+
+<h2>What I did</h2>
+<p>A deliberately small, single-model pilot on Gemma-2-2B, in two parts.</p>
+<p><strong>Behavioural experiment (the kept results).</strong> N = 60 paired innocent queries, each answered after a jailbreak history, after a benign history, and with no history. I measured two things: over-refusal (does the model wrongly refuse the innocent query after seeing an attack?) and divergence of the answer from its no-history baseline (1 minus cosine similarity of the answer embeddings), with a count of strong derailments.</p>
+<p><strong>Probe experiment (the discarded result).</strong> Layer-wise logistic probes on the residual stream, trained to separate clean from jailbreak contexts, using TransformerLens. About 1,000 lines of PyTorch and TransformerLens across both parts; runs on a single consumer GPU or Apple Silicon.</p>
+
+<h2>Result</h2>
+<table>
+  <tr><th>Measure</th><th class="num">After jailbreak history</th><th class="num">After benign history</th></tr>
+  <tr><td>Divergence from no-history baseline (cosine distance)</td><td class="num">0.119</td><td class="num">0.022</td></tr>
+  <tr><td>Strong derailments</td><td class="num">8/60</td><td class="num">—</td></tr>
+  <tr><td>Over-refusals of the innocent query</td><td class="num">0/60</td><td class="num">0/60</td></tr>
+</table>
+<ul>
+  <li><strong>A real but modest positive.</strong> Innocent answers after a jailbreak history diverged about 5× more from baseline than after a benign history (0.119 vs 0.022), with 8/60 strong derailments.</li>
+  <li><strong>Mostly format bleed, not goal contamination.</strong> Reading the derailed transcripts, the dominant mechanism is encoding style leaking across the turn boundary (leetspeak and ROT13 from the attack turn reappearing in the clean answer), rather than the model adopting the attacker's goal.</li>
+  <li><strong>A negative result I am keeping.</strong> Prior jailbreak history produced zero over-refusal contamination: 0/60 refusals in every condition.</li>
+</ul>
+
+<h2>What I discarded</h2>
+<p>The residual-stream probes reached 100% accuracy at every layer, including layer 0. Layer 0 is the embedding layer; a probe that separates the two conditions perfectly there is reading lexical differences between the clean and jailbreak prompts, not any internal "trust" state. I treated it as lexical leakage between conditions and did not report it as a result. The pipeline and its outputs stay in the repository, labelled as the discarded result, so the failure mode is visible.</p>
+
+<h2>Limits and what is not done</h2>
+<ul>
+  <li>One 2B model, small N, greedy decoding.</li>
+  <li>Refusal detection is keyword-based.</li>
+  <li>The divergence metric conflates format drift with meaning drift; separating the two is the obvious next experiment.</li>
+  <li>Feature steering on a candidate internal "trust" direction is planned, not done. Pair-level matched controls, cross-jailbreak-family generalisation and larger models are also planned.</li>
+</ul>
+
+<h2>Links</h2>
+<ul class="links">
+  <li><a href="https://github.com/tristatian/lams">Repository</a></li>
+  <li><a href="https://github.com/tristatian/lams/blob/main/report/Trista_Tian_Work_Sample_Trust_Decay.pdf">Technical report (PDF)</a></li>
+</ul>
+
+<footer>
+  <a href="../">Trista Tian</a> · <a href="mailto:tristatian@icloud.com">tristatian@icloud.com</a> · <a href="https://github.com/tristatian">GitHub</a> · <a href="https://www.linkedin.com/in/tristatian/">LinkedIn</a>
+</footer>
+</main>
+</body>
+</html>
